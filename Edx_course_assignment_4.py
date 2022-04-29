@@ -19,7 +19,6 @@ def Plotvec1(u, z, v):
     #plt.show()
 
 def main():
-    print("Hi!")
     a = np.array([1, -1, 1, -1, 2])
     print(a.mean())
     print(a.std())

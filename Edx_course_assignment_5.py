@@ -7,7 +7,6 @@ from pycoingecko import CoinGeckoAPI
 cg = CoinGeckoAPI()
 
 def main():
-    print("Hi!")
     bitcoin_data=cg.get_coin_market_chart_by_id(id='bitcoin', vs_currency='usd', days=30)
     bitcoin_price_data= bitcoin_data['prices']
     #print(bitcoin_price_data)
@@ -32,3 +31,4 @@ if __name__ == "__main__":
     main()
     t2=time.perf_counter()
     print(f'Finished in {t2-t1} seconds')
+    
