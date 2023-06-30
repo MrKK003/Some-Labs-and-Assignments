@@ -1,0 +1,140 @@
+import time
+import pandas as pd 
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+from sklearn.naive_bayes import GaussianNB,CategoricalNB
+import seaborn as sns
+from sklearn.metrics import mean_squared_error
+from sklearn import svm
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.preprocessing import StandardScaler
+
+
+def main():
+    #
+    customers=pd.read_csv("5var.csv",sep=';')
+    
+    #print(customers.info())
+
+    #pre-processing
+    for index, row in customers.iterrows():
+        customers.loc[index, 'Стаж']=float(row['Стаж'].replace(',','.'))
+        customers.loc[index,  'К-ть годин']=float(row['К-ть годин'].replace(',','.'))
+        customers.loc[index,  'Доход']=float(row['Доход'].replace(',','.'))
+        
+        if row['Професія'] == 'не вик.':
+            customers.loc[index,'Професія']=0
+        if row['Професія'] == 'рідко':
+            customers.loc[index,'Професія']=1
+        if row['Професія'] == 'постійно':
+            customers.loc[index,'Професія']=2
+            
+    
+    customers[['Стаж', 'К-ть годин','Доход','Професія']] = customers[['Стаж', 'К-ть годин','Доход','Професія']].apply(pd.to_numeric)
+    
+    customers_categorical_dummies = pd.get_dummies(customers[['Стать']])
+    customers_2 = pd.concat([customers_categorical_dummies, customers.drop(columns=['Стать'])], axis=1)
+    
+    customers_2['Група'] = (customers['Група']>1).astype('int')
+    
+    #print(customers_2.head())
+    #print(customers_2.info())  
+    
+    #SCALING THE FEATURES
+    
+    Standard_Scaler = StandardScaler()
+    features_to_scale = ['Вік','Стаж','К-ть годин','Доход']
+    features_not_to_scale = ['Стать_ж', 'Стать_ч', 'Професія','Група']
+    
+    scaled_features = pd.DataFrame(Standard_Scaler.fit_transform(customers_2[features_to_scale]), columns=features_to_scale)
+    customers_2 = pd.concat([scaled_features.reset_index(drop=True), customers_2[features_not_to_scale].reset_index(drop=True)], axis=1)
+    
+    #print(customers_2.head())
+   
+    
+    X_train, X_test, Y_train, Y_test = train_test_split(customers_2.drop(columns=['Професія']), customers_2['Професія'], test_size=0.3, random_state=125)
+    
+    #Gaussian Naive Bayes Classifier
+    
+    gnb = GaussianNB()
+    gnb.fit(X_train,Y_train)
+    
+    gnb_fit_evaulation = {'Gaussian Naive Bayes Classifier Fitting Evaluation':
+    {'No. of Features':gnb.n_features_in_,
+     'R_squared score (Train)':gnb.score(X_train,Y_train),
+     'R_squared score (Test)':gnb.score(X_test,Y_test)}}
+    
+    gnb_fit_evaulation = pd.DataFrame(gnb_fit_evaulation)
+    print(gnb_fit_evaulation)
+    
+    gnb_TrainSet_Prediction = gnb.predict(X_train)
+    gnb_TestSet_Prediction = gnb.predict(X_test)
+    
+    gnb_predict_evaulation = {'Gaussian Naive Bayes Classifier Predictions Evaluation':
+    {'Train MSE': mean_squared_error(Y_train,gnb_TrainSet_Prediction),
+     'Test MSE' : mean_squared_error(Y_test,gnb_TestSet_Prediction),
+     'Train RMSE': mean_squared_error(Y_train,gnb_TrainSet_Prediction,squared=False),
+     'Test RMSE' : mean_squared_error(Y_test,gnb_TestSet_Prediction,squared=False)}}
+    
+    gnb_predict_evaulation = pd.DataFrame(gnb_predict_evaulation)
+    print(gnb_predict_evaulation)
+    
+    
+    #SVM Classifier
+    
+    clf=svm.SVC(kernel='linear')
+    clf.fit(X_train,Y_train)
+    
+    svm_fit_evaulation = {'SVM Classifier Fitting Evaluation':
+    {'No. of Features':clf.n_features_in_,
+     'R_squared score (Train)':clf.score(X_train,Y_train),
+     'R_squared score (Test)':clf.score(X_test,Y_test)}}
+    
+    svm_fit_evaulation = pd.DataFrame(svm_fit_evaulation)
+    print(svm_fit_evaulation)
+    
+    svm_TrainSet_Prediction = clf.predict(X_train)
+    svm_TestSet_Prediction = clf.predict(X_test)
+    
+    svm_predict_evaulation = {'SVM Classifier Predictions Evaluation':
+    {'Train MSE': mean_squared_error(Y_train,svm_TrainSet_Prediction),
+     'Test MSE' : mean_squared_error(Y_test,svm_TestSet_Prediction),
+     'Train RMSE': mean_squared_error(Y_train,svm_TrainSet_Prediction,squared=False),
+     'Test RMSE' : mean_squared_error(Y_test,svm_TestSet_Prediction,squared=False)}}
+    
+    svm_predict_evaulation = pd.DataFrame(svm_predict_evaulation)
+    print(svm_predict_evaulation)
+    
+    #K-Nearest Neighbors Classifier
+    
+    knn=KNeighborsClassifier(n_neighbors=3)
+    knn.fit(X_train,Y_train)
+    
+    knn_fit_evaulation = {'K-Nearest Neighbors Classifier Fitting Evaluation':
+    {'No. of Features':knn.n_features_in_,
+     'R_squared score (Train)':knn.score(X_train,Y_train),
+     'R_squared score (Test)':knn.score(X_test,Y_test)}}
+    
+    knn_fit_evaulation = pd.DataFrame(knn_fit_evaulation)
+    print(knn_fit_evaulation)
+    
+    knn_TrainSet_Prediction = knn.predict(X_train)
+    knn_TestSet_Prediction = knn.predict(X_test)
+    
+    knn_predict_evaulation = {'K-Nearest Neighbors Predictions Classifier Evaluation':
+    {'Train MSE': mean_squared_error(Y_train,knn_TrainSet_Prediction),
+     'Test MSE' : mean_squared_error(Y_test,knn_TestSet_Prediction),
+     'Train RMSE': mean_squared_error(Y_train,knn_TrainSet_Prediction,squared=False),
+     'Test RMSE' : mean_squared_error(Y_test,knn_TestSet_Prediction,squared=False)}}
+    
+    knn_predict_evaulation = pd.DataFrame(knn_predict_evaulation)
+    print(knn_predict_evaulation)
+
+
+if __name__ == "__main__": 
+    t1=time.perf_counter()
+    main()
+    t2=time.perf_counter()
+    print(f'Finished in {t2-t1} seconds')
+
+

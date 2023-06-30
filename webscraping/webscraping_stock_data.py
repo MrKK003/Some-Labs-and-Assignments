@@ -74,8 +74,8 @@ def extracting_amazon_stock_data():
 
 
 def main():
-    #extracting_netflix_stock_data()
-    extracting_amazon_stock_data()
+    extracting_netflix_stock_data()
+    #extracting_amazon_stock_data()
     
 
 if __name__ == "__main__": 

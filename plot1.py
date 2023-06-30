@@ -16,7 +16,7 @@ def Plotvec1(u, z, v):
     plt.text(*(z + 0.1), 'z')#Adds the text z to the Axes 
     plt.ylim(-2, 2)#set the ylim to bottom(-2), top(2)
     plt.xlim(-2, 2)#set the xlim to left(-2), right(2)
-    #plt.show()
+    plt.show()
 
 def main():
     a = np.array([1, -1, 1, -1, 2])

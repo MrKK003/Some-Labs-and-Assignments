@@ -40,8 +40,8 @@ def extracting_amd_stock_data():
     
 
 def main():
-    #extracting_apple_stock_data()
-    extracting_amd_stock_data()
+    extracting_apple_stock_data()
+    #extracting_amd_stock_data()
     
     
     
